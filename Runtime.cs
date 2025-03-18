@@ -13,13 +13,20 @@ namespace DatabaseTest
         {
 
             UI UserInterface = new UI();
-            int menuChoise;
+            int menuChoise = 0;
 
             while (true)
             {
                 UserInterface.PrintMenu(0);
                 
-                menuChoise = int.Parse(Console.ReadLine());
+                try
+                {
+                    menuChoise = int.Parse(Console.ReadLine());
+                }
+                catch (Exception) 
+                {
+                    Console.WriteLine("Only numbers.");
+                }
 
                 switch (menuChoise)
                 {

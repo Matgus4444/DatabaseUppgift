@@ -10,7 +10,23 @@ namespace DatabaseTest
     internal class UI
     {
         DatabaseHandler DatabaseHandler = new DatabaseHandler();
+        enum ErrorCodes
+        {
+            Format,
+            EmptyDatabase
+        }
+        public string ReturnError(int errorCode)
+        {
+            switch (errorCode)
+            {
+                case 0:
+                    return "Only numbers.";
+                case 1:
+                    return "Database is empty.";
 
+            }
+            return "Unkown exception.";
+        }
         public void PrintMenu(int submenu)
         {
             switch (submenu)
@@ -44,14 +60,14 @@ namespace DatabaseTest
 
         public void PrintStudents()
         {
-            if (DatabaseHandler.PopCheckDB())
+            if (DatabaseHandler.IsDatabasePopulated())
             {
                 List<Student> Students = DatabaseHandler.GenerateStudentsList();
                 PrintForeachStudent(Students);
             }
             else
             {
-                Console.WriteLine("Database is empty");
+                Console.WriteLine(ReturnError((int)ErrorCodes.EmptyDatabase));
             }
         }
 
@@ -65,46 +81,40 @@ namespace DatabaseTest
 
         public void EditStudent()
         {
-            if (DatabaseHandler.PopCheckDB())
+            if (DatabaseHandler.IsDatabasePopulated())
             {
-                List<Student> Students;
-                while (true)
-                {
-                    Console.WriteLine("Name to search after (first or last name): ");
-                    string nameSearch = Console.ReadLine();
-                    if (nameSearch == "")
-                    {
-                        Students = DatabaseHandler.GenerateStudentsList();
-                    }
-                    else
-                    {
-                        Students = DatabaseHandler.StudentsMatchesList(nameSearch);
-                    }
-
-                    if (Students.Count == 0)
-                    {
-                        Console.WriteLine($"No students with the name {nameSearch} was found. Please try again. Press enter to see all students.");
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
+                //Här blev det en massa lokala metoder för att det inte skulle bli wall of code
+                //hoppas det är läsbart
+                List<Student> Students = FindInputStudents();
                 PrintForeachStudent(Students);
-                int studentEditByID = GetAndValidateStudentID();
+                Student student = GetAndValidateStudent();
                 PrintMenu(1);
 
-                int studentDataEdit = int.Parse(Console.ReadLine());
-                DatabaseHandler.EditStudent(studentEditByID, studentDataEdit);
+                int studentPropToEdit = 0; 
+                bool done = false;
+                do
+                {
+
+                    try
+                    {
+                        studentPropToEdit = int.Parse(Console.ReadLine());
+                        done = true;
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine(ReturnError((int)ErrorCodes.Format));
+                    }
+                } while (!done);
+                DatabaseHandler.EditStudent(student, studentPropToEdit);
             }
             else
             {
-                Console.WriteLine("Database is empty");
+                Console.WriteLine(ReturnError((int)ErrorCodes.EmptyDatabase));
             }
 
-            int GetAndValidateStudentID()
+            Student GetAndValidateStudent()
             {
+                Student student;
                 int studentEditByID = 0;
                 while (true)
                 {
@@ -119,23 +129,55 @@ namespace DatabaseTest
                         }
                         catch (FormatException)
                         {
-                            Console.WriteLine("Only numbers. Try again.");
+                            Console.WriteLine(ReturnError((int) ErrorCodes.Format));
                         }
                     } while (!done);
 
-                    Student student = DatabaseHandler.FindStudent(studentEditByID);
+                    student = DatabaseHandler.IDMatchedStudentFromDatabase(studentEditByID);
                     if (student == null)
                     {
                         Console.WriteLine($"Student with ID {studentEditByID} not found.");
                     }
                     else
                     {
-                        break;
+                        break; //Student was found; break while loop
                     }
                 }
 
-                return studentEditByID;
+                return student;
+
+
             }
+
+            List<Student> FindInputStudents()
+            {
+                List<Student> Students;
+                while (true)
+                {
+                    Console.WriteLine("Name to search after (first or last name): ");
+                    string nameSearch = Console.ReadLine();
+                    if (nameSearch == "") //If search string is empty; make list of all students
+                    {
+                        Students = DatabaseHandler.GenerateStudentsList();
+                    }
+                    else //Else make list of students with names matching search string
+                    {
+                        Students = DatabaseHandler.NameMatchedStudentsFromDatabase(nameSearch);
+                    }
+
+                    if (Students.Count == 0)
+                    {
+                        Console.WriteLine($"No students with the name {nameSearch} was found. Please try again. Press enter to see all students.");
+                    }
+                    else
+                    {
+                        break; //List if not empty, break while loop
+                    }
+                }
+
+                return Students;
+            }
+          
         }
 
     }

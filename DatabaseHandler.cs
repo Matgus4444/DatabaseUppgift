@@ -12,7 +12,7 @@ namespace DatabaseTest
 
         StudentDbContext DbCtx = new StudentDbContext();
 
-        public bool PopCheckDB()
+        public bool IsDatabasePopulated() 
         {
             if (DbCtx.Students.Count() != 0)
             {
@@ -36,24 +36,22 @@ namespace DatabaseTest
             return Students;
         }
 
-        public List<Student> StudentsMatchesList(string nameSearch)
+        public List<Student> NameMatchedStudentsFromDatabase(string nameSearch)
         {
-
             var Students = (DbCtx.Students.Where(s => s.FirstName == nameSearch).ToList());
             Students.AddRange(DbCtx.Students.Where(s => s.LastName == nameSearch).ToList());
             return Students;
         }
 
-        public Student FindStudent(int studentEditByID)
+        public Student IDMatchedStudentFromDatabase(int studentEditByID)
         {
             var student = DbCtx.Students.Where(s => s.StudentId == studentEditByID).FirstOrDefault<Student>();
-            return student;
+            return student; //Null hanteras i GetAndValidateStudentID i UI
         }
 
 
-        public void EditStudent(int studentEditByID, int studentDataEdit)
+        public void EditStudent(Student student, int studentDataEdit)
         {
-            var student = DbCtx.Students.Where(s => s.StudentId == studentEditByID).FirstOrDefault<Student>();
             switch (studentDataEdit)
             {
                 case 1:
@@ -74,5 +72,6 @@ namespace DatabaseTest
             }
             DbCtx.SaveChanges();
         }
+
     }
 }

@@ -14,5 +14,12 @@ namespace DatabaseTest
         public string? LastName { get; set; } = "";
         public string? City { get; set; } = "";
 
+        public Student(string firstName, string lastName, string city) 
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            City = city;
+        }
+
     }
 }

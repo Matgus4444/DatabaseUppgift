@@ -9,68 +9,132 @@ namespace DatabaseTest
 {
     internal class UI
     {
-        DatabaseHandler DbH = new DatabaseHandler();
+        DatabaseHandler DatabaseHandler = new DatabaseHandler();
 
-        public void PrintMenu()
+        public void PrintMenu(int submenu)
         {
-            Console.WriteLine("1. Register new student.");
-            Console.WriteLine("2. Edit student.");
-            Console.WriteLine("3. List all students.");
+            switch (submenu)
+            {
+                case 0:
+                    Console.WriteLine("1. Register new student.");
+                    Console.WriteLine("2. Edit student.");
+                    Console.WriteLine("3. List all students.");
+                    break;
+                case 1:
+                    Console.WriteLine("What do you want to edit?");
+                    Console.WriteLine("1. First name");
+                    Console.WriteLine("2. Last name");
+                    Console.WriteLine("3. City");
+                    Console.WriteLine("4. Delete student");
+                    break;
+            }
         }
 
         public void CreateStudent()
         {
-            Student s = new Student();
             Console.WriteLine("First name: ");
-            s.FirstName = Console.ReadLine();
+            string firstName = Console.ReadLine();
             Console.WriteLine("Last name: ");
-            s.LastName = Console.ReadLine();
+            string lastName = Console.ReadLine();
             Console.WriteLine("City: ");
-            s.City = Console.ReadLine();
-            DbH.AddStudent(s);
+            string city = Console.ReadLine();
+            Student student = new Student(firstName, lastName, city);
+            DatabaseHandler.AddStudent(student);
         }
 
         public void PrintStudents()
         {
-            if (DbH.PopCheckDB() )
-            { 
-            List<Student> Students = DbH.GenerateStudentsList();
-
-            foreach (Student s in Students)
+            if (DatabaseHandler.PopCheckDB())
             {
-                Console.WriteLine($"{s.FirstName} {s.LastName} {s.City}");
-            }
+                List<Student> Students = DatabaseHandler.GenerateStudentsList();
+                PrintForeachStudent(Students);
             }
             else
             {
                 Console.WriteLine("Database is empty");
+            }
+        }
+
+        private static void PrintForeachStudent(List<Student> Students)
+        {
+            foreach (Student s in Students)
+            {
+                Console.WriteLine($"{s.StudentId} {s.FirstName} {s.LastName} {s.City}");
             }
         }
 
         public void EditStudent()
         {
-            if (DbH.PopCheckDB())
+            if (DatabaseHandler.PopCheckDB())
             {
-                Console.WriteLine("Name to search after (first or last name): ");
-                string nameSearch = Console.ReadLine();
-                var Students = DbH.StudentsMatchesList(nameSearch);
-                foreach (Student item in Students)
+                List<Student> Students;
+                while (true)
                 {
-                    Console.WriteLine($"{item.StudentId} {item.FirstName} {item.LastName} {item.City}");
+                    Console.WriteLine("Name to search after (first or last name): ");
+                    string nameSearch = Console.ReadLine();
+                    if (nameSearch == "")
+                    {
+                        Students = DatabaseHandler.GenerateStudentsList();
+                    }
+                    else
+                    {
+                        Students = DatabaseHandler.StudentsMatchesList(nameSearch);
+                    }
+
+                    if (Students.Count == 0)
+                    {
+                        Console.WriteLine($"No students with the name {nameSearch} was found. Please try again. Press enter to see all students.");
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                Console.WriteLine("Choose student by ID to edit: ");
-                int studentEditByID = int.Parse(Console.ReadLine());
-                Console.WriteLine("What do you want to change?");
-                Console.WriteLine("1. First name");
-                Console.WriteLine("2. Last name");
-                Console.WriteLine("3. City");
-                Console.WriteLine("4. Delete student");
+
+                PrintForeachStudent(Students);
+                int studentEditByID = GetAndValidateStudentID();
+                PrintMenu(1);
+
                 int studentDataEdit = int.Parse(Console.ReadLine());
-                DbH.EditStudent(studentEditByID, studentDataEdit);
+                DatabaseHandler.EditStudent(studentEditByID, studentDataEdit);
             }
             else
             {
                 Console.WriteLine("Database is empty");
+            }
+
+            int GetAndValidateStudentID()
+            {
+                int studentEditByID = 0;
+                while (true)
+                {
+                    bool done = false;
+                    do
+                    {
+                        Console.WriteLine("Choose student by ID to edit: ");
+                        try
+                        {
+                            studentEditByID = int.Parse(Console.ReadLine());
+                            done = true;
+                        }
+                        catch (FormatException)
+                        {
+                            Console.WriteLine("Only numbers. Try again.");
+                        }
+                    } while (!done);
+
+                    Student student = DatabaseHandler.FindStudent(studentEditByID);
+                    if (student == null)
+                    {
+                        Console.WriteLine($"Student with ID {studentEditByID} not found.");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                return studentEditByID;
             }
         }
 

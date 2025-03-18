@@ -6,8 +6,8 @@ namespace DatabaseTest
     {
         static void Main(string[] args)
         {
-            Runtime RT = new Runtime();
-            RT.Launch();
+            Runtime RunTime = new Runtime();
+            RunTime.Launch();
             
         }
        

@@ -12,26 +12,26 @@ namespace DatabaseTest
         public void Launch()
         {
 
-            UI ui = new UI();
-            int val;
+            UI UserInterface = new UI();
+            int menuChoise;
 
             while (true)
             {
-                ui.PrintMenu();
+                UserInterface.PrintMenu(0);
                 
-                val = int.Parse(Console.ReadLine());
+                menuChoise = int.Parse(Console.ReadLine());
 
-                switch (val)
+                switch (menuChoise)
                 {
                     case 1: //Add new student
-                        ui.CreateStudent();
+                        UserInterface.CreateStudent();
                         break;
 
                     case 2: //Edit student
-                        ui.EditStudent();
+                        UserInterface.EditStudent();
                         break;
                     case 3: //List students
-                        ui.PrintStudents();
+                        UserInterface.PrintStudents();
                         break;
                 }
             }

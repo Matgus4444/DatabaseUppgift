@@ -17,7 +17,6 @@ namespace DatabaseTest
             if (DbCtx.Students.Count() != 0)
             {
                 return true;
-
             }
             else
             {
@@ -45,25 +44,32 @@ namespace DatabaseTest
             return Students;
         }
 
+        public Student FindStudent(int studentEditByID)
+        {
+            var student = DbCtx.Students.Where(s => s.StudentId == studentEditByID).FirstOrDefault<Student>();
+            return student;
+        }
+
+
         public void EditStudent(int studentEditByID, int studentDataEdit)
         {
-            var s = DbCtx.Students.Where(s => s.StudentId == studentEditByID).FirstOrDefault<Student>();
+            var student = DbCtx.Students.Where(s => s.StudentId == studentEditByID).FirstOrDefault<Student>();
             switch (studentDataEdit)
             {
                 case 1:
                     Console.WriteLine("New first name: ");
-                    s.FirstName = Console.ReadLine();
+                    student.FirstName = Console.ReadLine();
                     break;
                 case 2:
                     Console.WriteLine("New last name: ");
-                    s.LastName = Console.ReadLine();
+                    student.LastName = Console.ReadLine();
                     break;
                 case 3:
                     Console.WriteLine("New city: ");
-                    s.City = Console.ReadLine();
+                    student.City = Console.ReadLine();
                     break;
                 case 4:
-                    DbCtx.Remove(s);
+                    DbCtx.Remove(student);
                     break;
             }
             DbCtx.SaveChanges();
